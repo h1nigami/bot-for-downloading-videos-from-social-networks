@@ -1,3 +1,4 @@
 .config.ini
 .db.sqlite3
 *.pyc
+*.mp4
