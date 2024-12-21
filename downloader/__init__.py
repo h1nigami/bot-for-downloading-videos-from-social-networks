@@ -1,1 +1,1 @@
-from .main import YoutubeDownloader
+from .main import SocialMediaDownloader
