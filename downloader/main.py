@@ -26,7 +26,3 @@ class YoutubeDownloader:
             raise Exception("Превышено максимальное количество попыток загрузки")
 
 
-if __name__ == "__main__":
-    url = 'https://youtube.com/shorts/3ERD1GZjvKY?si=huAWOB8qkcB9GBdY'  
-    downloader = YoutubeDownloader(url)
-    downloader.download_with_retry()
