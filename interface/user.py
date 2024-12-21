@@ -15,6 +15,6 @@ async def main():
 
 @dp.message(CommandStart())
 async def first(message:types.Message):
-    
+    await db.create_user(nickname=message.from_user.username, tg_id=message.from_user.id)
     await message.answer(f'Привет {message.from_user.username}, это бот для скачивания видео из разных соц сетей, просто отправь ссылку')
 
