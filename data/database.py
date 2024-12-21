@@ -36,3 +36,6 @@ class DB():
     async def fetchone(self, query, *args):
         await self.cursor.execute(query, args)
         return await self.cursor.fetchone()
+
+
+db = DB('db.sqlite3')

@@ -5,6 +5,9 @@ class Config:
         self.config = configparser.ConfigParser()
         self.config.read(file_name)
 
-    def get_token(self, section, option):
-        return self.config.get(section=section, option=option)
+    def get_token(self):
+        return self.config['BOT']['token']
     
+config = Config('config.ini')
+
+print(config.get_token())
