@@ -1,41 +1,52 @@
 import aiosqlite
+from sqlalchemy import create_engine, Column, Integer, String, BigInteger
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-class DB():
-    def __init__(self, file_name):
-        self.file_name = file_name
+Base = declarative_base()
 
-    async def connect(self):
-        self.connection = await aiosqlite.connect(self.file_name)
-        self.cursor = await self.connection.cursor()
+class Bot(Base):
+    __tablename__ = 'Bot'
 
-    async def create_table(self):
-        await self.connect()
-        query = 'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, nickname TEXT, is_admin INTEGER DEFAULT 0)'
-        await self.cursor.execute(query)
-        await self.close()
+    token = Column(BigInteger, primary_key=True)
+    name = Column(String)
 
-    async def create_user(self, tg_id: int, nickname: str):
-        await self.connect()
-        query = 'INSERT INTO users (id, nickname) VALUES (?, ?)'
-        await self.cursor.execute(query, (tg_id, nickname))
-        await self.connection.commit()  
-        await self.close()
+    def __repr__(self):
+        return f'Бот {self.name}'
 
-    async def close(self):
-        await self.cursor.close()
-        await self.connection.close()
+class User(Base):
+    __tablename__ = 'users'
 
-    async def execute(self, query, *args):
-        await self.cursor.execute(query, args)
-        await self.connection.commit()
+    user_id = Column(Integer, primary_key=True)
+    nickname = Column(String)
 
-    async def fetchall(self, query, *args):
-        await self.cursor.execute(query, args)
-        return await self.cursor.fetchall()
+    def __repr__(self):
+        return f'User(id={self.id}, username={self.nickname})'
 
-    async def fetchone(self, query, *args):
-        await self.cursor.execute(query, args)
-        return await self.cursor.fetchone()
+class DatabaseManager:
+    def __init__(self, db_url):
+        self.engine = create_engine(db_url)
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+    
+    async def connection_open(self):
+        self.session = self.Session()
+    
+    async def connection_close(self):
+        await self.session.close()
+    
+    async def create_user(self, tg_id:int, nickname:str):
+        await self.connection_open()
+        user = User(user_id=tg_id, nickname=nickname)
+        self.session.add(user)
+        self.session.commit()
+        await self.connection_close()
+    
+    async def get_user(self, tg_id:int):
+        self.connection_open()
+        user = await self.session.query(User).get(tg_id)
+        self.connection_close()
+        return user
+    
 
-
-db = DB('db.sqlite3')
+        
